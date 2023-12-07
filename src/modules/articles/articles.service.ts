@@ -1,27 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ArticleRepository } from './articles.repository';
-import { Article } from './article.entity';
-import {
-  ArticleDto,
-  ArticleQueryDto,
-  UpdateArticleDto,
-} from './dto/article.dto';
-import { CreateArticleDto } from './dto/create-article.dto';
-import { CrudService } from 'src/@base/generics/crud-generic';
+import { Article } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
+import { ArticleQueryDto } from './dto/article.dto';
 
 @Injectable()
-export class ArticlesService extends CrudService<
-  Article,
-  ArticleDto,
-  CreateArticleDto,
-  ArticleQueryDto,
-  UpdateArticleDto
-> {
-  constructor(
-    @InjectRepository(Article)
-    private readonly articleRepository: ArticleRepository,
-  ) {
-    super(articleRepository, ArticleDto);
+export class ArticlesService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(data: { title: string; content: string }): Promise<Article> {
+    return this.prisma.article.create({ data });
+  }
+
+  async find(articleQueryDto: ArticleQueryDto): Promise<Article[]> {
+    console.log(articleQueryDto);
+    return this.prisma.article.findMany();
+  }
+
+  async findOne(id: string): Promise<Article | null> {
+    return this.prisma.article.findUnique({ where: { id } });
+  }
+
+  async update(
+    id: string,
+    data: { title?: string; content?: string },
+  ): Promise<Article> {
+    return this.prisma.article.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async delete(id: string): Promise<Article> {
+    return this.prisma.article.delete({ where: { id } });
   }
 }

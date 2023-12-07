@@ -17,7 +17,6 @@ import {
   ArticleQueryDto,
   UpdateArticleDto,
 } from './dto/article.dto';
-import { DeleteResult } from 'typeorm';
 
 @ApiTags('Articles')
 @Controller('articles')
@@ -66,7 +65,7 @@ export class ArticleController {
     description: 'Bad Request.',
   })
   findById(@Param('articleId') articleId: string): Promise<ArticleDto> {
-    return this.articleService.findOne({ id: articleId });
+    return this.articleService.findOne(articleId);
   }
 
   @Put(':articleId')
@@ -92,13 +91,12 @@ export class ArticleController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Article Deleted.',
-    type: DeleteResult,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad Request.',
   })
-  deleteById(@Param('articleId') articleId: string): Promise<DeleteResult> {
+  deleteById(@Param('articleId') articleId: string) {
     return this.articleService.delete(articleId);
   }
 }
