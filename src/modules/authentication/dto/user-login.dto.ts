@@ -1,11 +1,11 @@
 import {
-  EmailField,
   PasswordField,
+  StringField,
 } from 'src/@common/decorators/field.decorators';
 
 export class UserLoginDto {
-  @EmailField()
-  readonly email!: string;
+  @StringField()
+  readonly usernameOrEmail!: string;
 
   @PasswordField()
   readonly password!: string;

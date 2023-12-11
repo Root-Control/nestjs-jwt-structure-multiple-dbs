@@ -1,7 +1,7 @@
 type EnvConfiguration = {
   port: number;
-  postgres: PostgresConfig;
   jwt: JwtConfig;
+  db: DbConfig;
 };
 
 type JwtConfig = {
@@ -10,12 +10,8 @@ type JwtConfig = {
   ttl: number;
 };
 
-type PostgresConfig = {
-  host: string;
-  port: number;
-  username: string;
-  database: string;
-  password: string;
+type DbConfig = {
+  connectionString: string;
 };
 
-export { EnvConfiguration, PostgresConfig, JwtConfig };
+export { EnvConfiguration, DbConfig, JwtConfig };
