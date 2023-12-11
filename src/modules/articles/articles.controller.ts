@@ -17,12 +17,10 @@ import {
   ArticleQueryDto,
   UpdateArticleDto,
 } from './dto/article.dto';
-import { DeleteResult } from 'typeorm';
-
 @ApiTags('Articles')
 @Controller('articles')
-export class ArticleController {
-  constructor(private readonly articleService: ArticlesService) {}
+export class ArticlesController {
+  constructor(private readonly articleService: ArticlesService) { }
 
   @Post()
   @ApiOperation({ summary: 'Create an article' })
@@ -65,8 +63,8 @@ export class ArticleController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad Request.',
   })
-  findById(@Param('articleId') articleId: string): Promise<ArticleDto> {
-    return this.articleService.findOne({ id: articleId });
+  findById(@Param('articleId') articleId: string): Promise<any> {
+    return this.articleService.findById(articleId);
   }
 
   @Put(':articleId')
@@ -80,7 +78,7 @@ export class ArticleController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad Request.',
   })
-  updateById(
+  update(
     @Param('articleId') articleId: string,
     @Body() updateArticleDto: UpdateArticleDto,
   ): Promise<ArticleDto> {
@@ -92,13 +90,12 @@ export class ArticleController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Article Deleted.',
-    type: DeleteResult,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad Request.',
   })
-  deleteById(@Param('articleId') articleId: string): Promise<DeleteResult> {
+  deleteById(@Param('articleId') articleId: string): Promise<any> {
     return this.articleService.delete(articleId);
   }
 }

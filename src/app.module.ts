@@ -4,19 +4,17 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import config from './@common/env-configuration/config';
 import { ArticlesModule } from './modules/articles';
-import { DatabaseModule } from './@database';
-import { UsersModule } from './modules/users/users.module';
-import { AuthModule } from './modules/authentication/authentication.module';
+import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
     }),
-    DatabaseModule,
     ArticlesModule,
-    UsersModule,
-    AuthModule,
+    MongooseModule.forRoot(
+      'mongodb+srv://hpalacios:JxnIkYNLkgEKLUfb@formyfamily.qihg1.mongodb.net/fmf-dev',
+    ),
   ],
   controllers: [AppController],
   providers: [AppService],

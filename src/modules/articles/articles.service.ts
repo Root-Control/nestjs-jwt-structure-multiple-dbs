@@ -1,27 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ArticleRepository } from './articles.repository';
-import { Article } from './article.entity';
+import { Article, ArticleDocument } from './article.entity';
 import {
   ArticleDto,
   ArticleQueryDto,
   UpdateArticleDto,
 } from './dto/article.dto';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CrudService } from 'src/@base/generics/crud-generic';
 
 @Injectable()
 export class ArticlesService extends CrudService<
-  Article,
   ArticleDto,
   CreateArticleDto,
   ArticleQueryDto,
   UpdateArticleDto
 > {
   constructor(
-    @InjectRepository(Article)
-    private readonly articleRepository: ArticleRepository,
+    @InjectModel(Article.name) readonly articleModel: Model<ArticleDocument>,
   ) {
-    super(articleRepository, ArticleDto);
+    super(articleModel, ArticleDto);
   }
 }

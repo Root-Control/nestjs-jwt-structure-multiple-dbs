@@ -1,88 +1,87 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  DeepPartial,
-  DeleteResult,
-  FindManyOptions,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
 import { plainToClass } from 'class-transformer';
-
-interface Identifiable {
-  id: string;
-}
+import { getErrorMessage } from 'src/@common/utilities/mongodb-parser';
 
 @Injectable()
 export abstract class CrudService<
-  T extends Identifiable,
   DTO,
-  CreateDto extends DeepPartial<T>,
-  QueryDTO extends { skip?: number; take?: number },
-  UpdateDto extends DeepPartial<T>,
+  CreateDto,
+  QueryDTO extends { skip?: number; limit?: number },
+  UpdateDto,
 > {
   private dtoClass: new (...args: any[]) => DTO;
   protected constructor(
-    protected readonly repository: Repository<T>,
+    private readonly model,
     dtoClass: new (...args: any[]) => DTO,
   ) {
     this.dtoClass = dtoClass;
   }
 
-  async create(createDto: CreateDto): Promise<DTO> {
+  async create(createArticleDto: CreateDto): Promise<DTO> {
     try {
-      const entity = this.repository.create(createDto);
-      const savedEntity = await this.repository.save(entity);
-      return plainToClass(this.dtoClass, savedEntity);
+      const Repository = new this.model(createArticleDto);
+      const result = await Repository.save();
+      return plainToClass(this.dtoClass, result.toObject());
     } catch (ex) {
-      throw new HttpException(ex.message, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException('error', HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
   async find(queryDto: QueryDTO): Promise<DTO[]> {
+    const { skip, limit, ...props } = queryDto;
+    const items = await this.model.find(props, null, { skip, limit });
+
+    return items.map((it) => plainToClass(this.dtoClass, it.toObject()));
+  }
+
+  async findById(_id: string): Promise<DTO> {
     try {
-      const { skip, take, ...props } = queryDto;
-      const query: FindManyOptions = { where: props, skip, take };
-      const entities = await this.repository.find(query);
-      return entities.map((entity) => plainToClass(this.dtoClass, entity));
+      const result = await this.model.findById(_id);
+
+      if (!result) {
+        throw new Error(`${this.model.modelName} not found`);
+      }
+      return plainToClass(this.dtoClass, result.toObject());
     } catch (ex) {
-      throw new HttpException(ex.message, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        getErrorMessage(ex),
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 
-  async findOne(find: FindOptionsWhere<T>): Promise<DTO> {
+  async findOne(queryDto: QueryDTO): Promise<DTO> {
     try {
-      const entity = await this.repository.findOne({ where: find });
-      return plainToClass(this.dtoClass, entity);
-    } catch (ex) {
-      throw new HttpException(ex.message, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-  }
-
-  async update(id: string, updateDto: UpdateDto): Promise<DTO> {
-    try {
-      const entity = await this.repository.findOneBy({
-        id,
-      } as FindOptionsWhere<T>);
-      if (!entity) {
+      const article = await this.model.findOne(queryDto);
+      if (!article) {
         throw new HttpException('Entity not found', HttpStatus.NOT_FOUND);
       }
-      const updated = this.repository.merge(entity, updateDto);
-      const savedEntity = await this.repository.save(updated);
-      return plainToClass(this.dtoClass, savedEntity);
+      return plainToClass(this.dtoClass, article.toObject());
     } catch (ex) {
-      throw new HttpException(ex.message, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException('error', HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  async delete(id: string): Promise<DeleteResult> {
+  async update(_id: string, payload: UpdateDto): Promise<DTO> {
     try {
-      const result = await this.repository.delete(id);
-      if (result.affected === 0) {
+      const article = await this.model.findOneAndUpdate({ _id }, payload, {
+        new: true,
+      });
+      if (!article) {
         throw new HttpException('Entity not found', HttpStatus.NOT_FOUND);
       }
-      return result;
+
+      return plainToClass(this.dtoClass, article.toObject());
     } catch (ex) {
-      throw new HttpException(ex.message, HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException('ex', HttpStatus.UNPROCESSABLE_ENTITY);
     }
+  }
+
+  async delete(_id: string): Promise<{ success: boolean }> {
+    const model = await this.model.deleteOne({ _id });
+
+    return {
+      success: model.acknowledged,
+    };
   }
 }

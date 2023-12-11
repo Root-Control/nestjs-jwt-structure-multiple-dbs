@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Base } from 'src/@base/entity/base.entity';
 
 export type ArticleDocument = Article & mongoose.Document;
 
@@ -19,6 +20,5 @@ export class Article extends Base {
 export const ArticleSchema = SchemaFactory.createForClass(Article);
 
 ArticleSchema.pre('save', function (next) {
-
   next();
-})
+});

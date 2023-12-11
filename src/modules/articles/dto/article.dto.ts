@@ -14,7 +14,7 @@ export class ArticleDto extends BaseDto {
 }
 
 export class UpdateArticleDto extends PartialType(
-  OmitType(ArticleDto, ['createdAt', 'updatedAt', 'id'] as const),
+  OmitType(ArticleDto, ['createdAt', 'updatedAt', '_id'] as const),
 ) {}
 
 export class ArticleQueryDto extends PartialType(
@@ -26,5 +26,5 @@ export class ArticleQueryDto extends PartialType(
 
   @ApiPropertyOptional()
   @NumberFieldOptional()
-  take: number;
+  limit: number;
 }
