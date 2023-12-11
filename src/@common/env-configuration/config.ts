@@ -1,3 +1,5 @@
+import { getString } from '../utilities/utils';
+
 export default () => ({
   port: parseInt(process.env.PORT, 10) || 3000,
   postgres: {
@@ -8,8 +10,8 @@ export default () => ({
     database: process.env.DB_DATABASE,
   },
   jwt: {
-    privateKey: process.env.JWT_PRIVATE_KEY,
-    publicKey: process.env.JWT_PUBLIC_KEY,
+    privateKey: getString(process.env.JWT_PRIVATE_KEY || ''),
+    publicKey: getString(process.env.JWT_PUBLIC_KEY || ''),
     ttl: 5000,
   },
 });

@@ -1,7 +1,7 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema()
-export class Base {
+export abstract class Base {
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 

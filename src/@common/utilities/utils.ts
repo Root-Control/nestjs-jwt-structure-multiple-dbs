@@ -45,3 +45,7 @@ export function getVariableName<TResult>(
 
   return memberParts.at(-1);
 }
+
+export function getString(key: string): string {
+  return key.replaceAll('\\n', '\n');
+}

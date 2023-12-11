@@ -23,7 +23,10 @@ export abstract class CrudService<
       const result = await Repository.save();
       return plainToClass(this.dtoClass, result.toObject());
     } catch (ex) {
-      throw new HttpException('error', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        getErrorMessage(ex),
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 
@@ -34,7 +37,7 @@ export abstract class CrudService<
     return items.map((it) => plainToClass(this.dtoClass, it.toObject()));
   }
 
-  async findById(_id: string): Promise<DTO> {
+  async findById(_id: string): Promise<any> {
     try {
       const result = await this.model.findById(_id);
 
@@ -54,11 +57,14 @@ export abstract class CrudService<
     try {
       const article = await this.model.findOne(queryDto);
       if (!article) {
-        throw new HttpException('Entity not found', HttpStatus.NOT_FOUND);
+        throw new Error(`${this.model.modelName} not found`);
       }
       return plainToClass(this.dtoClass, article.toObject());
     } catch (ex) {
-      throw new HttpException('error', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        getErrorMessage(ex),
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 
@@ -68,12 +74,15 @@ export abstract class CrudService<
         new: true,
       });
       if (!article) {
-        throw new HttpException('Entity not found', HttpStatus.NOT_FOUND);
+        throw new Error(`${this.model.modelName} not found`);
       }
 
       return plainToClass(this.dtoClass, article.toObject());
     } catch (ex) {
-      throw new HttpException('ex', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        getErrorMessage(ex),
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
   }
 

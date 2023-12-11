@@ -8,6 +8,7 @@ import {
   Query,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -17,10 +18,13 @@ import {
   ArticleQueryDto,
   UpdateArticleDto,
 } from './dto/article.dto';
+import { AuthGuard } from '@nestjs/passport';
+
+@UseGuards(AuthGuard('jwt'))
 @ApiTags('Articles')
 @Controller('articles')
 export class ArticlesController {
-  constructor(private readonly articleService: ArticlesService) { }
+  constructor(private readonly articleService: ArticlesService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create an article' })

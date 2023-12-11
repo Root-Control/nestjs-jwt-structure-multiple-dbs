@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Article, ArticleDocument } from './article.entity';
+import { Article, ArticleDocument } from './article.schema';
 import {
   ArticleDto,
   ArticleQueryDto,
